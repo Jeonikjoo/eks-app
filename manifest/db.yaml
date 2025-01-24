@@ -41,31 +41,6 @@ spec:
 
 ---
 
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mysql-init
-data:
-  init.sql: |
-    CREATE DATABASE IF NOT EXISTS app;
-    CREATE USER 'app'@'%' IDENTIFIED BY 'app12345';
-    GRANT ALL PRIVILEGES ON app.* TO 'app'@'%';
-
----
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: db-secret-info
-type: Opaque
-data:
-  MYSQL_ROOT_PASSWORD: azhzMTIzNDUK
-  MYSQL_DATABASE: YXBwCg==
-  MYSQL_USER: YXBwCg==
-  MYSQL_PASSWORD: YXBwMTIzNDUK
-
----
-
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -86,18 +61,14 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3306
-          envFrom:
-            - secretRef:
-                name: db-secret-info
+          env:
+            name: MYSQL_ROOT_PASSWORD
+            value: k8s12345
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: mysqldata
-            - mountPath: /docker-entrypoint-initdb.d
-              name: initdb
       volumes:
         - name: mysqldata
           persistentVolumeClaim:
             claimName: ebs-dp-claim
-        - name: initdb
-          configMap:
-            name: mysql-init
+
