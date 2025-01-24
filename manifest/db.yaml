@@ -38,19 +38,6 @@ spec:
     requests:
       storage: 4Gi
   storageClassName: ebs-dp-sc
-
----
-
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mysql-init
-data:
-  init.sql: |
-    CREATE DATABASE IF NOT EXISTS app;
-    CREATE USER 'app'@'%' IDENTIFIED BY 'app12345';
-    GRANT ALL PRIVILEGES ON app.* TO 'app'@'%';
-
 ---
 
 apiVersion: v1
@@ -90,7 +77,7 @@ spec:
             - secretRef:
                 name: db-secret-info
           volumeMounts:
-            - mountPath: /var/lib/mysql
+            - mountPath: /mysql
               name: mysqldata
             - mountPath: /docker-entrypoint-initdb.d
               name: initdb
@@ -98,6 +85,4 @@ spec:
         - name: mysqldata
           persistentVolumeClaim:
             claimName: ebs-dp-claim
-        - name: initdb
-          configMap:
-            name: mysql-init
+
