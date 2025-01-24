@@ -42,6 +42,17 @@ spec:
 ---
 
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  init.sql: |
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
+    FLUSH PRIVILEGES;
+
+---
+
+apiVersion: v1
 kind: Secret
 metadata:
   name: db-secret-info
@@ -67,7 +78,7 @@ spec:
     metadata:
       labels:
         app: mysql
-    spec:
+    spec: 
       containers:
         - name: mysql-container
           image: mysql
