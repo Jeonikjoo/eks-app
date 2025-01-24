@@ -69,28 +69,28 @@ jobs:
         docker tag $REPOSITORY:$IMAGE_TAG $REGISTRY_ALIAS.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:$IMAGE_TAG
         docker push $REGISTRY_ALIAS.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY:$IMAGE_TAG
     
-  # cd:
-  #   needs: ci
-  #   runs-on: ubuntu-latest
+  cd:
+    needs: ci
+    runs-on: ubuntu-latest
     
-  #   steps:
-  #   - uses: actions/checkout@v4
-  #     with:
-  #         repository: Jeonikjoo/eks-app
-  #         ref: main
-  #         token: ${{ secrets.TOKEN }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+          repository: Jeonikjoo/eks-app
+          ref: main
+          token: ${{ secrets.TOKEN }}
           
-  #   - name: Set up Image
-  #     run: |
-  #       sed -i "s%image: ${{ secrets.ECR_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:[A-z0-9]*%image: ${{ secrets.ECR_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}%" ./manifest/app.yaml
+    - name: Set up Image
+      run: |
+        sed -i "s%image: ${{ secrets.ECR_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:[A-z0-9]*%image: ${{ secrets.ECR_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}%" ./manifest/app.yaml
         
-  #   - name: Commit and push changes
-  #     run: |
-  #       git config --local user.email ${{ secrets.EMAIL }}
-  #       git config --local user.name ${{ secrets.USERNAME }}
-  #       git add .
-  #       git commit -m "Update nginx image to latest"
-  #       git push
+    - name: Commit and push changes
+      run: |
+        git config --local user.email ${{ secrets.EMAIL }}
+        git config --local user.name ${{ secrets.USERNAME }}
+        git add .
+        git commit -m "Update nginx image to latest"
+        git push
     
       
         
