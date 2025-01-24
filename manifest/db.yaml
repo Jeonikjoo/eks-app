@@ -44,11 +44,12 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mysql-initdb-config
+  name: mysql-init
 data:
   init.sql: |
-    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;
-    FLUSH PRIVILEGES;
+    CREATE DATABASE IF NOT EXISTS app;
+    CREATE USER 'app'@'%' IDENTIFIED BY 'app12345';
+    GRANT ALL PRIVILEGES ON app.* TO 'app'@'%';
 
 ---
 
@@ -99,4 +100,4 @@ spec:
             claimName: ebs-dp-claim
         - name: initdb
           configMap:
-            name: mysql-initdb-config
+            name: mysql-init
