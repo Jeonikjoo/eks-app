@@ -1,4 +1,4 @@
-name: Eks App
+name: Eks App 
 
 on:
   # workflow_dispatch
