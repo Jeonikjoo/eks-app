@@ -90,7 +90,7 @@ spec:
             - secretRef:
                 name: db-secret-info
           volumeMounts:
-            - mountPath: /mysql
+            - mountPath: /var/lib/mysql
               name: mysqldata
             - mountPath: /docker-entrypoint-initdb.d
               name: initdb
