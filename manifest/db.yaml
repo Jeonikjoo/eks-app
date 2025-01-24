@@ -13,35 +13,31 @@ spec:
 
 ---
 
-apiVersion: v1
-kind: PersistentVolume
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
 metadata:
-  name: db-pv
-  labels:
-    type: local
-spec:
-  accessModes:
-  - ReadWriteOnce
-  capacity:
-    storage: 500Mi
-  persistentVolumeReclaimPolicy: Retain
-  storageClassName: db-storage
-  hostPath:
-    path: /mysql/data
+  name: ebs-dp-sc
+allowVolumeExpansion: true
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+parameters:
+  type: gp3
+  allowAutoIOPSPerGBIncrease: 'true'
+  encrypted: 'true'
 
 ---
 
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: db-pvc
+  name: ebs-dp-claim
 spec:
   accessModes:
-  - ReadWriteOnce
+    - ReadWriteOnce
   resources:
     requests:
-      storage: 30Mi
-  storageClassName: db-storage
+      storage: 4Gi
+  storageClassName: ebs-dp-sc
 
 ---
 
@@ -105,4 +101,4 @@ spec:
       volumes:
         - name: mysqldata
           persistentVolumeClaim:
-            claimName: db-pvc
+            claimName: ebs-dp-claim
