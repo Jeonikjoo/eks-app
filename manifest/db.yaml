@@ -38,6 +38,19 @@ spec:
     requests:
       storage: 4Gi
   storageClassName: ebs-dp-sc
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-init
+data:
+  init.sql: |
+    CREATE DATABASE IF NOT EXISTS app;
+    CREATE USER 'app'@'%' IDENTIFIED BY 'app12345';
+    GRANT ALL PRIVILEGES ON app.* TO 'app'@'%';
+
 ---
 
 apiVersion: v1
@@ -85,4 +98,6 @@ spec:
         - name: mysqldata
           persistentVolumeClaim:
             claimName: ebs-dp-claim
-
+        - name: initdb
+          configMap:
+            name: mysql-init
