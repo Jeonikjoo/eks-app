@@ -11,6 +11,6 @@ public class testController {
 
 	@GetMapping("/status")
 	public String testApi() {
-		return "Status v4 - returned by Pod";
+		return "Status v5 - returned by Pod";
 	}
 }
