@@ -76,7 +76,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-          repository: Jeonikjoo/eks-app
+          repository: Jeonikjoo/eks-app-manifest
           ref: main
           token: ${{ secrets.TOKEN }}
           
