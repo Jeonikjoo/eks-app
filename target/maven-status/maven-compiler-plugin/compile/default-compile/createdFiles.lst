@@ -1,6 +1,0 @@
-app/entity/Student.class
-app/repository/StudentRepository.class
-app/AppApplication.class
-app/service/StudentService.class
-app/api/controller/testController.class
-app/api/controller/StudentController.class
