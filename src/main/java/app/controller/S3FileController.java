@@ -19,7 +19,7 @@ public class S3FileController {
 	private final S3Service s3Service;
 	
 	@PostMapping(value = "/api/s3/files")
-	public void uploadS3File(@RequestPart("file") MultipartFile file) {
+	public void uploadS3File(@RequestPart(value = "file", required = false) MultipartFile file) {
 		try {
 			s3Service.uploadS3File(file);
 		} catch (Exception e) {

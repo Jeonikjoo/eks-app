@@ -1,12 +1,23 @@
 package app.service;
 
+import java.io.File;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3ObjectInputStream;
 
 import app.entity.AttachmentFile;
 import app.repository.AttachmentFileRepository;
@@ -28,12 +39,42 @@ public class S3Service {
     // 파일 업로드
 	@Transactional
 	public void uploadS3File(MultipartFile file) throws Exception {
+		System.out.println("S3 : uploadS3File");
 		
-		// C:/CE/97.data/s3_data에 파일 저장 -> S3 전송 및 저장 (putObject)
 		if(file == null) {
 			throw new Exception("파일 전달 오류 발생");
 		}
+		// DB 저장
+		String filePath = "C://CE//97.data//" + DIR_NAME;
+		String attachmentOriginalFileName = file.getOriginalFilename();
+		UUID uuid = UUID.randomUUID();
+		String attachmentFileName = uuid.toString() + "_" + attachmentOriginalFileName;
+		Long attachmentFileSize = file.getSize();
+		AttachmentFile attachmentFile = AttachmentFile.builder()
+											.filePath(filePath)
+											.attachmentOriginalFileName(attachmentOriginalFileName)
+											.attachmentFileName(attachmentFileName)
+											.attachmentFileSize(attachmentFileSize)
+											.build();
+		Long fileNo = fileRepository.save(attachmentFile).getAttachmentFileNo();
 		
+		// fileNo 가 있다면 정상적으로 저장된것
+		if(fileNo != null) {
+			// C:/CE/97.data/s3_data에 파일 저장
+			
+			File uploadFile = new File(attachmentFile.getFilePath() + "//" + attachmentFileName);
+			file.transferTo(uploadFile);
+
+			
+			// S3 전송 및 저장 (putObject)
+			// key : bucket 내부에 객체가 저장되는 경로 + 파일 객체명
+			String s3Key = DIR_NAME + "/" + uploadFile.getName();
+			amazonS3.putObject(bucketName, s3Key, uploadFile);
+			
+			if(uploadFile.exists()) {
+				uploadFile.delete();
+			}
+		}
 	}
 	
 	// 파일 다운로드
@@ -42,9 +83,31 @@ public class S3Service {
 		AttachmentFile attachmentFile = null;
 		Resource resource = null;
 		
-		// DB에서 파일 검색 -> S3의 파일 가져오기 (getObject) -> 전달
+		try {
+			// DB에서 파일 검색 -> 
+			attachmentFile = fileRepository.findById(fileNo)
+											.orElseThrow(() -> new NoSuchElementException("파일 없음"));
+			
+			// S3의 파일 가져오기 (getObject) -> 전달
+			// key : bucket 내부에 객체가 저장되는 경로 + 파일 객체명
+			String s3Key = DIR_NAME + "/" + attachmentFile.getAttachmentFileName();
+			S3Object s3Object = amazonS3.getObject(bucketName, s3Key);
+			S3ObjectInputStream s3is = s3Object.getObjectContent();
+			resource = new InputStreamResource(s3is);
+		}
+		catch (Exception e) {
+			return new ResponseEntity<Resource>(resource, null, HttpStatus.NO_CONTENT);
+		}
 		
-		return null;
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		headers.setContentDisposition(ContentDisposition
+											.builder("attachment")
+											.filename(attachmentFile.getAttachmentOriginalFileName())
+											.build());
+		
+		
+		return new ResponseEntity<Resource>(resource, headers, HttpStatus.OK);
 	}
 	
 }
