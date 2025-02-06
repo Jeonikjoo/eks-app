@@ -2,6 +2,7 @@ package app.controller;
 
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,6 +31,11 @@ public class S3FileController {
 	@GetMapping(value = "/api/s3/files/{fileNo}")
 	public ResponseEntity<Resource> downloadS3File(@PathVariable("fileNo") long fileNo) throws Exception {
 		return s3Service.downloadS3File(fileNo);
+	}
+	
+	@DeleteMapping(value = "/api/s3/files/{fileNo}")
+	public void deleteS3File(@PathVariable("fileNo") long fileNo) {
+		s3Service.deleteS3File(fileNo);
 	}
 }
 
