@@ -113,20 +113,16 @@ public class S3Service {
 	public void deleteS3File(long fileNo) {
 		AttachmentFile attachmentFile = null;
 		Resource resource = null;
-		try {
-			// DB에서 파일 검색 -> 
-			attachmentFile = fileRepository.findById(fileNo)
-											.orElseThrow(() -> new NoSuchElementException("파일 없음"));
-			
-			// S3의 파일 가져오기 (getObject) -> 전달
-			// key : bucket 내부에 객체가 저장되는 경로 + 파일 객체명
-			String s3Key = DIR_NAME + "/" + attachmentFile.getAttachmentFileName();
-			amazonS3.deleteObject(bucketName, s3Key);
-			
-		}
-		catch (Exception e) {
-			
-		}
+		
+		attachmentFile = fileRepository.findById(fileNo)
+										.orElseThrow(() -> new NoSuchElementException("파일 없음"));
+		
+		// S3의 파일 가져오기 (getObject) -> 전달
+		// key : bucket 내부에 객체가 저장되는 경로 + 파일 객체명
+		String s3Key = DIR_NAME + "/" + attachmentFile.getAttachmentFileName();
+		amazonS3.deleteObject(bucketName, s3Key);
+		
+		fileRepository.deleteById(fileNo);
 		
 	}
 	
