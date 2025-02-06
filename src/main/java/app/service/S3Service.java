@@ -45,7 +45,7 @@ public class S3Service {
 			throw new Exception("파일 전달 오류 발생");
 		}
 		// DB 저장
-		String filePath = "C://CE//97.data//" + DIR_NAME;
+		String filePath = "//root//mount//" + DIR_NAME;
 		String attachmentOriginalFileName = file.getOriginalFilename();
 		UUID uuid = UUID.randomUUID();
 		String attachmentFileName = uuid.toString() + "_" + attachmentOriginalFileName;
